@@ -342,6 +342,7 @@ class PSTracker(object):
         Starts the PS scheduler
         """
         self.cmd = cmd
+        logging.basicConfig(level=logging.INFO)
         if cmd is None:
             return
         envs = {} if envs is None else envs
@@ -357,9 +358,11 @@ class PSTracker(object):
                 continue
         env = os.environ.copy()
 
-        env['DMLC_ROLE'] = 'scheduler'
+        env['DMLC_ROLE'] = str('scheduler')
         env['DMLC_PS_ROOT_URI'] = str(self.hostIP)
         env['DMLC_PS_ROOT_PORT'] = str(self.port)
+        logging.info("Setting debug info")
+        env['PS_VERBOSE']='1'
         for k, v in envs.items():
             env[k] = str(v)
         self.thread = Thread(
@@ -412,7 +415,8 @@ def submit(nworker, nserver, fun_submit, hostIP='auto', pscmd=None):
         pscmd = None
 
     envs = {'DMLC_NUM_WORKER' : nworker,
-            'DMLC_NUM_SERVER' : nserver}
+            'DMLC_NUM_SERVER' : nserver,
+            'PS_VERBOSE':1}
     hostIP = get_host_ip(hostIP)
 
     if nserver == 0:
